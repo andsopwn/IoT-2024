@@ -43,6 +43,11 @@ u8 input;
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
+#define xtimes(a) (a<<1)^(a&0x80?0x1b:0)
+#define xtimes_2(a) xtimes((xtimes(a)))
+#define xtimes_3(a) xtimes((xtimes((xtimes(a)))))
+#define xtimes_4(a) xtimes_2((xtimes_2(a)))
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -56,7 +61,13 @@ u8 input;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 /* USER CODE BEGIN PFP */
+u8 squa(u8 a) {
+    u8 ah = 0, al = 0;
+    ah = ((a & 0x80) >> 1) | ((a & 0x40) >> 2) | ((a & 0x20) >> 3) | ((a & 0x10) >> 4);
+    al = ((a & 0x8) << 3) | ((a & 0x4) << 2) | ((a & 0x2) << 1) | a & 0b1;
 
+    return xtimes_4(ah) ^ xtimes_3(ah) ^ xtimes(ah) ^ ah ^ al;
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -71,34 +82,84 @@ static void MX_GPIO_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	u8 mulaa = 0x10;
+	bool START_FLAG = True;
+	int num_input;
+	u8 tmp[8] = { 0x00, };
+	u8 num = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	HAL_Init();
 
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
 
   /* Configure the system clock */
-  SystemClock_Config();
+	SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
 
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init();
+	MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-  TextlcdInit();
-  clearScreen(ALL_LINE);
+	TextlcdInit();
+	clearScreen(ALL_LINE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	while(1) {
+		num = 0;
+		num_input = 0;
+
+		if(START_FLAG == True) {
+			START_FLAG == False;
+			clearScreen(0);
+			writeTextLine(LINE_1, "squaring >> ");
+		}
+
+
+		while (num_input < 2) {
+			if(INPUT_FLAG == True) {
+				INPUT_FLAG = False;
+				if(num_input == 0) num = input & 0x0f;
+				else num = (num << 4) | (input & 0x0F);
+
+				//num ^= (num_input % 2 == 1) ? (input << 4) : input;
+
+			    sprintf(tmp, "1.0x%02x", num);
+				writeTextLine(LINE_2, tmp);
+
+				if (num_input % 2 == 0 && num_input != 0) {
+					sprintf(tmp, "2.0x%02x", num);
+					writeTextLine(LINE_2, tmp);
+
+					HAL_Delay(1000);
+					clearScreen(LINE_2);
+
+				}
+				num_input++;
+				HAL_Delay(300);
+			}
+			HAL_Delay(100);
+		}
+		clearScreen(ALL_LINE);
+		sprintf(tmp, "squa(%02x)", num);
+		writeTextLine(LINE_1, tmp);
+		sprintf(tmp, "-> 0x%02x", squa(num));
+		writeTextLine(LINE_2, tmp);
+
+		num = 0;
+		num_input = 0;
+
+		HAL_Delay(2500);
+	}
+
 
 
 
