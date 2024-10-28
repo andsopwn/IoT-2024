@@ -1,1 +1,6 @@
 .DS_Store
+*
+!STM32F407VGTX_FLASH.ld
+!STM32F407VGTX_RAM.ld
+!*.ioc
+!Core/*

@@ -61,12 +61,43 @@ u8 input;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 /* USER CODE BEGIN PFP */
+u8 mul(u8 a, u8 b) {
+	u8 c = 0;
+	c ^= (a & 0x01) ? b : 0;
+	b = xtimes(b);
+	c ^= (a & 0x02) ? b : 0;
+	b = xtimes(b);
+	c ^= (a & 0x04) ? b : 0;
+	b = xtimes(b);
+	c ^= (a & 0x08) ? b : 0;
+	b = xtimes(b);
+	c ^= (a & 0x10) ? b : 0;
+	b = xtimes(b);
+	c ^= (a & 0x20) ? b : 0;
+	b = xtimes(b);
+	c ^= (a & 0x40) ? b : 0;
+	b = xtimes(b);
+	c ^= (a & 0x80) ? b : 0;
+	return c;
+}
+
 u8 squa(u8 a) {
     u8 ah = 0, al = 0;
     ah = ((a & 0x80) >> 1) | ((a & 0x40) >> 2) | ((a & 0x20) >> 3) | ((a & 0x10) >> 4);
     al = ((a & 0x8) << 3) | ((a & 0x4) << 2) | ((a & 0x2) << 1) | a & 0b1;
 
     return xtimes_4(ah) ^ xtimes_3(ah) ^ xtimes(ah) ^ ah ^ al;
+}
+
+u8 itoh(u8 a) {
+	u8 a0, a1;
+
+	a0 = mul(a, squa(a));
+	a1 = mul(a0, squa(squa(a0)));
+	a1 = mul(a0, squa(squa(a1)));
+	a1 = squa(mul(a, squa(a1)));
+
+	return a1;
 }
 /* USER CODE END PFP */
 
@@ -120,7 +151,7 @@ int main(void)
 		if(START_FLAG == True) {
 			START_FLAG == False;
 			clearScreen(0);
-			writeTextLine(LINE_1, "squaring >> ");
+			writeTextLine(LINE_1, "Itoh-Tsujii >> ");
 		}
 
 
@@ -149,9 +180,9 @@ int main(void)
 			HAL_Delay(100);
 		}
 		clearScreen(ALL_LINE);
-		sprintf(tmp, "squa(%02x)", num);
+		sprintf(tmp, "inv(%02x)", num);
 		writeTextLine(LINE_1, tmp);
-		sprintf(tmp, "-> 0x%02x", squa(num));
+		sprintf(tmp, "-> 0x%02x", itoh(num));
 		writeTextLine(LINE_2, tmp);
 
 		num = 0;
