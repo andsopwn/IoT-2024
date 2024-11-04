@@ -47,7 +47,17 @@ u8 input;
 #define xtimes_2(a) xtimes((xtimes(a)))
 #define xtimes_3(a) xtimes((xtimes((xtimes(a)))))
 #define xtimes_4(a) xtimes_2((xtimes_2(a)))
-
+/*
+#define poly_degree(poly) ( \
+    ((poly) & 0x80) ? 7 : \
+    ((poly) & 0x40) ? 6 : \
+    ((poly) & 0x20) ? 5 : \
+    ((poly) & 0x10) ? 4 : \
+    ((poly) & 0x08) ? 3 : \
+    ((poly) & 0x04) ? 2 : \
+    ((poly) & 0x02) ? 1 : \
+    ((poly) & 0x01) ? 0 : -1 )
+*/
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -84,7 +94,7 @@ u8 mul(u8 a, u8 b) {
 u8 squa(u8 a) {
     u8 ah = 0, al = 0;
     ah = ((a & 0x80) >> 1) | ((a & 0x40) >> 2) | ((a & 0x20) >> 3) | ((a & 0x10) >> 4);
-    al = ((a & 0x8) << 3) | ((a & 0x4) << 2) | ((a & 0x2) << 1) | a & 0b1;
+    al = ((a & 0x8) << 3) | ((a & 0x4) << 2) | ((a & 0x2) << 1) | (a & 0b1);
 
     return xtimes_4(ah) ^ xtimes_3(ah) ^ xtimes(ah) ^ ah ^ al;
 }
@@ -98,6 +108,62 @@ u8 itoh(u8 a) {
 	a1 = squa(mul(a, squa(a1)));
 
 	return a1;
+}
+
+u32 poly_degree(u32 poly) {
+    int deg = -1;
+    while(poly) {
+        poly >>= 1;
+        deg++;
+    }
+    return deg;
+}
+
+u8 gf_mod(u8 a) {
+    while(poly_degree(a) >= 8) {
+        int shift = poly_degree(a) - 8;
+        a ^= 0x11b << shift;
+    }
+    return a;
+}
+
+
+u8 eea(u8 a) {
+    if (a == 0)
+        return 0;
+
+    u32 u = a;
+    u32 v = 0x11b;
+    u32 g1 = 1;
+    u32 g2 = 0;
+
+    for (int i = 0; i < 8; i++) {
+        int deg_u = poly_degree(u);
+        int deg_v = poly_degree(v);
+
+        if (u == 1)
+            break;
+
+        if (deg_u < deg_v) {
+            // Swap u and v
+            u32 temp_u = u; u = v; v = temp_u;
+            // Swap g1 and g2
+            u32 temp_g = g1; g1 = g2; g2 = temp_g;
+            deg_u = poly_degree(u);
+            deg_v = poly_degree(v);
+        }
+
+        u8 shift = deg_u - deg_v;
+
+        // u = u + v * x^shift
+        u ^= v << shift;
+        gf_mod(u);
+        // g1 = g1 + g2 * x^shift
+        g1 ^= g2 << shift;
+        gf_mod(g1);
+    }
+
+    return (u8)g1;
 }
 /* USER CODE END PFP */
 
@@ -151,7 +217,7 @@ int main(void)
 		if(START_FLAG == True) {
 			START_FLAG == False;
 			clearScreen(0);
-			writeTextLine(LINE_1, "Itoh-Tsujii >> ");
+			writeTextLine(LINE_1, "EEA  >> ");
 		}
 
 
@@ -182,7 +248,7 @@ int main(void)
 		clearScreen(ALL_LINE);
 		sprintf(tmp, "inv(%02x)", num);
 		writeTextLine(LINE_1, tmp);
-		sprintf(tmp, "-> 0x%02x", itoh(num));
+		sprintf(tmp, "-> 0x%02x", eea(num));
 		writeTextLine(LINE_2, tmp);
 
 		num = 0;
