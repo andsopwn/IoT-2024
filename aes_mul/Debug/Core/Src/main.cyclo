@@ -1,0 +1,11 @@
+../Core/Src/main.c:74:4:mul	16
+../Core/Src/main.c:94:4:squa	24
+../Core/Src/main.c:102:4:itoh	1
+../Core/Src/main.c:113:5:poly_degree	2
+../Core/Src/main.c:122:4:gf_mod	2
+../Core/Src/main.c:131:4:eea	5
+../Core/Src/main.c:179:5:main	7
+../Core/Src/main.c:273:6:SystemClock_Config	3
+../Core/Src/main.c:315:13:MX_GPIO_Init	1
+../Core/Src/main.c:391:6:HAL_GPIO_EXTI_Callback	3
+../Core/Src/main.c:408:6:Error_Handler	1

@@ -1,0 +1,14 @@
+../Core/Src/textlcd.c:33:6:dataportDirectionOut	40	static
+../Core/Src/textlcd.c:56:5:IsBusy	16	static
+../Core/Src/textlcd.c:77:6:writeDataPort	24	static
+../Core/Src/textlcd.c:91:5:writeCmd	16	static
+../Core/Src/textlcd.c:114:5:setDDRAMAddr	24	static
+../Core/Src/textlcd.c:138:5:displayMode	32	static
+../Core/Src/textlcd.c:158:5:writeCh	16	static
+../Core/Src/textlcd.c:179:5:setCursorMode	24	static
+../Core/Src/textlcd.c:195:5:functionSet	16	static
+../Core/Src/textlcd.c:205:5:writeStr	24	static
+../Core/Src/textlcd.c:222:5:clearScreen	24	static
+../Core/Src/textlcd.c:256:5:initlcd	8	static
+../Core/Src/textlcd.c:268:6:TextlcdInit	8	static
+../Core/Src/textlcd.c:275:5:writeTextLine	40	static
