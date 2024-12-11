@@ -35,7 +35,6 @@ static void MX_GPIO_Init(void);
 
 void uint128_init(uint128_t *num, uint32_t value);
 void uint128_copy(uint128_t *dest, const uint128_t *src);
-void uint128_print(const uint128_t *num);
 void gf2_128_add(uint128_t *result, const uint128_t *a, const uint128_t *b);
 void gf2_128_mul(uint128_t *result, const uint128_t *a, const uint128_t *b);
 void gf2_128_exp(uint128_t *result, const uint128_t *g, const uint128_t *e);
@@ -50,11 +49,7 @@ void uint128_init(uint128_t *num, uint32_t value) {
 
 void uint128_copy(uint128_t *dest, const uint128_t *src) {
     memcpy(dest->data, src->data, sizeof(uint32_t) * 4);
-}
-
-void uint128_print(const uint128_t *num) {
-    //printf("0x%08X%08X%08X%08X",num->data[3], num->data[2], num->data[1], num->data[0]);
-}
+}}
 
 void gf2_128_add(uint128_t *result, const uint128_t *a, const uint128_t *b) {
     for (int i = 0; i < 4; i++) {
@@ -133,12 +128,7 @@ int main(void)
     uint128_init(&e, 0xAED); // 하위 32비트에 0xAED를 넣고 나머지는 0으로 초기화
     uint128_t result;
 
-    printf("GF(2^128) exponentiation start...\r\n");
-
     gf2_128_exp(&result, &g, &e);
-
-    printf("Result: ");
-    uint128_print(&result);
 
     while (1)
     {
